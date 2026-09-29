@@ -191,8 +191,8 @@ configurar_firewall() {
 verificar_saude() {
   info "Etapa 6/6 - Healthcheck"
   (( DRY_RUN )) && { info "[dry-run] testaria http://localhost/"; return; }
-  local i code=""
-  for i in 1 2 3 4 5; do
+  local code=""
+  for _ in 1 2 3 4 5; do
     code="$(curl -s -o /dev/null -w '%{http_code}' http://localhost/ 2>/dev/null || true)"
     [[ "$code" == "200" ]] && break; sleep 1
   done

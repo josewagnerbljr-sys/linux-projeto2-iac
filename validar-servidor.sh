@@ -22,20 +22,27 @@ chk() {  # chk "descricao" comando...
   fi
 }
 
+# As funções abaixo são chamadas indiretamente por "chk" (via "$@"), então o
+# ShellCheck não consegue provar que são usadas e as marca como "inacessíveis"
+# (SC2317). É um falso positivo conhecido para esse padrão de despacho.
+# shellcheck disable=SC2317
 porta_80_em_escuta() {
   ss -ltn | grep -q ':80 '
 }
 
+# shellcheck disable=SC2317
 http_responde_200() {
   local code
   code="$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)"
   [[ "$code" == "200" ]]
 }
 
+# shellcheck disable=SC2317
 versao_apache_oculta() {
   ! grep -Ei '^Server:.*[0-9]+\.[0-9]+' <<< "$HDR" >/dev/null
 }
 
+# shellcheck disable=SC2317
 tem_header_seguranca() {
   grep -qi 'x-content-type-options' <<< "$HDR"
 }
