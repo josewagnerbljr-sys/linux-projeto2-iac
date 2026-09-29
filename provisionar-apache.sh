@@ -115,7 +115,8 @@ baixar() {  # baixar URL DESTINO
 backup_site_atual() {
   info "Etapa 3/6 - Backup do conteúdo atual"
   if [[ -d "$DOCROOT" && -n "$(ls -A "$DOCROOT" 2>/dev/null)" ]]; then
-    local arq="$BACKUP_DIR/html-$(date +%Y%m%d-%H%M%S).tar.gz"
+    local arq
+    arq="$BACKUP_DIR/html-$(date +%Y%m%d-%H%M%S).tar.gz"
     run mkdir -p "$BACKUP_DIR"
     run tar -czf "$arq" -C "$DOCROOT" .
     ok "Backup criado: $arq"
@@ -128,7 +129,10 @@ publicar_site() {
   info "Etapa 4/6 - Publicando o site"
   local origem=""
   if (( DRY_RUN )); then
-    info "[dry-run] publicaria o site de: $( ((USE_LOCAL)) && echo "$SCRIPT_DIR/site" || echo "$SITE_URL" )"; return
+    local alvo="$SITE_URL"
+    (( USE_LOCAL )) && alvo="$SCRIPT_DIR/site"
+    info "[dry-run] publicaria o site de: $alvo"
+    return
   fi
   if (( ! USE_LOCAL )); then
     TMP_DIR="$(mktemp -d)"
@@ -198,7 +202,9 @@ verificar_saude() {
 
 main() {
   [[ $EUID -eq 0 ]] || die "Execute como root (ex.: sudo $0)."
-  info "Provisionamento Apache v$VERSAO $( ((DRY_RUN)) && echo '(SIMULAÇÃO)' )"
+  local rotulo=""
+  (( DRY_RUN )) && rotulo=" (SIMULAÇÃO)"
+  info "Provisionamento Apache v$VERSAO$rotulo"
   detectar_distro
   atualizar_sistema
   instalar_pacotes
